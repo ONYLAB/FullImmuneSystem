@@ -1,4 +1,4 @@
-function Parameters(SimType,epitopes,HLA_DR)
+function Parameters()
 
 % The protein-specific parameters in this current code were used for
 % simulating in vivo immune response in human against FVII.
@@ -26,16 +26,15 @@ AMT=Patientkg*DosePerPatientkg*1e-3;%40; % mg
 % MW: molecular weight of the protein (protein-specific)
 MW=45.18e3; %Daltons = g/mol
 
-% Fitted concentration in plasma 
-fitconc = 20.88e3;
-
 % Dose: bioavailabe drug dose (protein-specific)
-Dose = fitconc*Vp; %pmol = pmol/L * L (before=>AMT*1E9/MW*F_Bio;  % pmole)
+Dose = 20.88e3*Vp; %pmol = pmol/L * L (before=>AMT*1E9/MW*F_Bio;  % pmole)
 
 EndotoxinContentoftheDrug = 0.1; %ng/mg drug
-Endotoxin = EndotoxinContentoftheDrug*AMT; %ng = (ng/mg * mg)
-VzEndo = 54e-3; %L/kg Volume of distribution - Eritoran
-Endotoxin = SimType*Endotoxin/VzEndo*Vpperkg; %Scaling for available amount in plasma compartment ng
+Endotoxin = EndotoxinContentoftheDrug*(TotalDrugAmount*1e-3); %ng = (ng/mg * mg)
+VzEndo = 54e-3; %L/kg Volume of distribution
+Endotoxin = SimType*Endotoxin/VzEndo*Vpperkg; %Scaling %ng
+
+
 
 % Vec: volume of extra central compartment (protein-specific)
 Vec= 0.36920; % L
@@ -102,7 +101,7 @@ BetaMS=0.3696;  % day-1
 BetaID=0.0924; % day-1
 
 % DeltaID:	maximum activation rate of immature dendritic cells
-DeltaID=1.66;%1.5; % day-1
+DeltaID=1.5; % day-1
 
 % Km,MS: LPS concentration at which immature DC activation rate is 50% maximum.
 KMS= 9.852E3; % ng/L
@@ -113,7 +112,7 @@ BetaMD=0.2310 ; % day-1
 %% Antigen presentation
 
 % konN: on rate for competing peptide-MHC-II binding
-konN=0.0;%ones(6,1)*8.64*1E-3; %  pM-1day-1
+konN=ones(6,1)*8.64*1E-3; %  pM-1day-1
 
 % koffN: off rate for competing peptide-MHC-II binding
 koffN=8.64*1E-3*ones(6,1)*4000E3; %  day-1
@@ -125,7 +124,7 @@ AlphaAgE=14.4; %day-1
 BetaAgE= 17.28; % day-1
 
 %	Beta_p:	degradation rate for T-epitope peptide (same for all peptides)
-Beta_p= 14.4; % day-1
+Beta_p= 144.0; % day-1
 
 % BetaM: degradation rate for MHC-II
 BetaM= 1.663; % day-1.
@@ -252,7 +251,7 @@ Agec0=0; % pmole
 Agp0=0; % pmole
 
 % MS0: Maturation signal (MS), particularly, endotoxin, LPS
-MS0=Endotoxin;%5*70; % ng
+MS0=Endotoxinl%5*70; % ng
 
 % ID0: the initial number of immature dendritc cell
 ID0=5e7; % cells
@@ -261,7 +260,7 @@ ID0=5e7; % cells
 MD0=0; % cells
 
 % cp0: amount of endogenous competing protein in the plasma
-cp0=0.0;%110E6*Vp; % pmole
+cp0=110E6*Vp; % pmole
 
 % cpE0: initial amount of endogenous competing protein in endosome
 cpE0=0;   % pmole
@@ -403,8 +402,6 @@ pars((69+12*N+J):(74+12*N+J))=ME0;
 pars((75+12*N+J):(74+13*N+J))=NT0;
 
 pars=pars';
-
-save Parameters.mat;
 
 function [kon,koff,N,ME0] = doNETMHCIIpan(epitopes,HLA_DR,SimType,NA,numHLADR)
 %% Collect -on, -off rates, number of epitopes and amount of initial MHC

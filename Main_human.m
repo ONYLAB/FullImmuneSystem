@@ -1,5 +1,5 @@
 
-function Main_human()
+function Main_human(DayLimit,SimType,epitopes,HLA_DR,donor_ID)
 
 clc
 close all
@@ -12,7 +12,8 @@ global solutionx
 injectfreq = 1; %1 Day injection frequency
 
 % Load the parameters
-Parameters
+Parameters(SimType,epitopes,HLA_DR); %SimType=1 if with Sample, 0 if without
+load Parameters.mat; %#ok<LOAD>
 
 % Run the ODEs
 options = odeset('RelTol',1e-10, 'AbsTol',1e-10);
