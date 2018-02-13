@@ -1,15 +1,15 @@
 
-function Main_human(SimType,epitopes,HLA_DR,regimen)
+function Main_human(DayLimit,SimType,epitopes,HLA_DR,regimen)
 
 clc
 close all
-
+clear
 %% Main simulation
 
 % Set a global variable to store the previous solution for free Ag concentration
 global solutionx
 
-numdoses = length(regimen)-1;
+numdoses = length(regimen)-2;
 
 % Load the parameters
 Parameters(SimType,epitopes,HLA_DR); %SimType=1 if with Sample, 0 if without
@@ -34,7 +34,7 @@ y_record=Y1;
 
 
 % Subsequent doses
-for num_dose=2:numdoses  % number of doses, protein specific
+for num_dose=1:numdoses-1  % number of doses, protein specific
     
     % Initial conditions
     AgIS1=y_record(numel(t_record), 1)+Dose;
@@ -72,8 +72,8 @@ for num_dose=2:numdoses  % number of doses, protein specific
     yic2 = [AgIS1,Ag1, Agce1,Agp1,MS1, ID1, MD1, cpE1, cptE1,cptME1,cptM1,AgE1,pE1,  ME1,pME1,  pM1, M1,NT1, AT_N1,AT_M1,MT1,FT1,NB1, AB_N1, AB_M1, SP1, LP1,MB1,A1]';
     
     % dosing interval
-    t_start=regimen(num_dose);
-    t_end=regimen(num_dose+1);
+    t_start=injectfreq*num_dose;
+    t_end=injectfreq*(num_dose+1);
     tspan2 = linspace(t_start, t_end, 100);
     
     % Call ODE
@@ -215,7 +215,7 @@ end
 %% Save the results
 savefile='results.mat';
 
-save(savefile, 'koff', 't_record','AgIS_vector','Ag_vector','Agec_vector','Agp_vector', 'MS_vector','ID_vector','MD_vector',...
+save(savefile, 'a','koff', 't_record','AgIS_vector','Ag_vector','Agec_vector','Agp_vector', 'MS_vector','ID_vector','MD_vector',...
     'cpE_vector', 'cptE_vector', 'cptME_vector', 'cptM_vector', 'AgE_vector','pE_vector', ...
     'ME_vector','pME_vector', 'pM_vector', 'M_vector', 'NT_vector', 'AT_N_vector', 'AT_M_vector', 'MT_vector',...
     'FT_vector', 'NB_vector','AB_N_vector','AB_M_vector','SP_vector','LP_vector','MB_vector','A_vector','A_total',...
