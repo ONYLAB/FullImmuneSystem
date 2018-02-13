@@ -9,6 +9,8 @@ clear
 % Set a global variable to store the previous solution for free Ag concentration
 global solutionx
 
+injectfreq = 1; %1 Day injection frequency
+
 % Load the parameters
 Parameters
 
@@ -20,7 +22,7 @@ options = odeset('RelTol',1e-10, 'AbsTol',1e-10);
 yic1 = [AgIS0;Ag0;Agec0;Agp0; MS0; ID0; MD0; cpE0; cptE0;cptME0;cptM0;AgE0;pE0; ME0;pME0; pM0; M0;NT0; AT_N0; AT_M0;MT0; FT0;NB0; AB_N0; AB_M0; SP0; LP0;MB0;A0];
 
 % First dosing interval, protein specific
-tspan1 =linspace(0,14,100);
+tspan1 =linspace(0,injectfreq,100);
 
 % Call ODE
 [T1,Y1]=ode15s(@f, tspan1, yic1, options,pars);
@@ -69,8 +71,8 @@ for num_dose=1:40  % number of doses, protein specific
     yic2 = [AgIS1,Ag1, Agce1,Agp1,MS1, ID1, MD1, cpE1, cptE1,cptME1,cptM1,AgE1,pE1,  ME1,pME1,  pM1, M1,NT1, AT_N1,AT_M1,MT1,FT1,NB1, AB_N1, AB_M1, SP1, LP1,MB1,A1]';
     
     % dosing interval
-    t_start=14*num_dose;
-    t_end=14*(num_dose+1);
+    t_start=injectfreq*num_dose;
+    t_end=injectfreq*(num_dose+1);
     tspan2 = linspace(t_start, t_end, 100);
     
     % Call ODE
