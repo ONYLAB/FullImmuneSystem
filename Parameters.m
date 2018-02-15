@@ -406,6 +406,56 @@ pars=pars';
 
 save Parameters.mat;
 
+% function [kon,koff,N,ME0] = doNETMHCIIpan(epitopes,HLA_DR,SimType,NA,numHLADR)
+% %% Collect -on, -off rates, number of epitopes and amount of initial MHC
+% % molecules
+% EpitopePresent = 1;
+% N = length(epitopes);
+% if N<1
+%     EpitopePresent = 0;
+%     epitopes{1} = 'AAAAAAAAAAA'; %Dummy PolyA epitope
+%     N=1;
+% end
+% 
+% if strcmp(HLA_DR{1,1},HLA_DR{1,2}) %homozygot
+%     disp('Homozygote');
+%     ME0=[numHLADR; 0.0;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2]/NA*1E12; % pmole
+%     % kon: on rate for for T-epitope-MHC-II binding
+%     kon=EpitopePresent*SimType*repmat([1 0 0 0 0 0],N,1)*8.64*1E-3; %  pM-1day-1
+%     HLAtext = [HLA_DR{1,1} ',' HLA_DR{1,2}];
+% else
+%     ME0=[numHLADR/2; numHLADR/2;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2]/NA*1E12; % pmole
+%     % kon: on rate for for T-epitope-MHC-II binding
+%     kon=EpitopePresent*SimType*repmat([1 1 0 0 0 0],N,1)*8.64*1E-3; %  pM-1day-1
+%     HLAtext = [HLA_DR{1,1} ',' HLA_DR{1,2}];
+% end
+% 
+% Affinity_DPQ=[4000 4000 4000 4000]; %place holder for other alleles (NOT USED)
+% Affinity_DR = givekon(epitopes{1},HLAtext);
+% %	koff:	off rate for for T-epitope-MHC-II binding
+% koff=8.64*1E-3*[Affinity_DR Affinity_DPQ]*1E3; %  day-1
+% 
+% for i = 2:N
+%     Affinity_DR = givekon(epitopes{i},HLAtext);
+%     temp = 8.64*1E-3*[Affinity_DR Affinity_DPQ]*1E3;
+%     koff = [koff;temp];
+% end
+% 
+% 
+% function Affinity_DR = givekon(epitopesequence,HLAtext)
+% %% Run NetMHCIIPan if not done before, extract association rates
+% % data(1).Sequence = 'epitopesequence'
+% % data(1).Header = 'Seq'
+% % fastawrite('example.fsa',data);
+% if exist('out.dat')==0 %#ok<EXIST>
+%     dlmwrite('example.fsa',epitopesequence,'')
+%     command = ['netMHCIIpan -f example.fsa -inptype 1 -xls -xlsfile out.dat -a ' HLAtext];
+%     [s,m] = unix(command);
+% end
+% table = readtable('out.dat');
+% Affinity_DR(1) = table{1,'nM'};
+% Affinity_DR(2) = table{1,'nM_1'};
+
 function [kon,koff,N,ME0] = doNETMHCIIpan(epitopes,HLA_DR,SimType,NA,numHLADR)
 %% Collect -on, -off rates, number of epitopes and amount of initial MHC
 % molecules
@@ -419,11 +469,13 @@ end
 
 if strcmp(HLA_DR{1,1},HLA_DR{1,2}) %homozygot
     disp('Homozygote');
+    nallele = 1;
     ME0=[numHLADR; 0.0;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2]/NA*1E12; % pmole
     % kon: on rate for for T-epitope-MHC-II binding
     kon=EpitopePresent*SimType*repmat([1 0 0 0 0 0],N,1)*8.64*1E-3; %  pM-1day-1
     HLAtext = [HLA_DR{1,1} ',' HLA_DR{1,2}];
 else
+    nallele = 2;
     ME0=[numHLADR/2; numHLADR/2;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2]/NA*1E12; % pmole
     % kon: on rate for for T-epitope-MHC-II binding
     kon=EpitopePresent*SimType*repmat([1 1 0 0 0 0],N,1)*8.64*1E-3; %  pM-1day-1
@@ -431,27 +483,26 @@ else
 end
 
 Affinity_DPQ=[4000 4000 4000 4000]; %place holder for other alleles (NOT USED)
-Affinity_DR = givekon(epitopes{1},HLAtext);
+Affinity_DR = givekon(epitopes{1},nallele,HLA_DR);
 %	koff:	off rate for for T-epitope-MHC-II binding
 koff=8.64*1E-3*[Affinity_DR Affinity_DPQ]*1E3; %  day-1
 
 for i = 2:N
-    Affinity_DR = givekon(epitopes{i},HLAtext);
+    Affinity_DR = givekon(epitopes{i},nallele,HLA_DR);
     temp = 8.64*1E-3*[Affinity_DR Affinity_DPQ]*1E3;
     koff = [koff;temp];
 end
 
-
-function Affinity_DR = givekon(epitopesequence,HLAtext)
+function Affinity_DR = givekon(epitopesequence,nallele,HLAtext)
 %% Run NetMHCIIPan if not done before, extract association rates
 % data(1).Sequence = 'epitopesequence'
 % data(1).Header = 'Seq'
 % fastawrite('example.fsa',data);
-if exist('out.dat')==0 %#ok<EXIST>
-    dlmwrite('example.fsa',epitopesequence,'')
-    command = ['netMHCIIpan -f example.fsa -inptype 1 -xls -xlsfile out.dat -a ' HLAtext];
-    [s,m] = unix(command);
+if exist('IEDB_KD.dat')==0 %#ok<EXIST>
+%     dlmwrite('example.fsa',epitopesequence,'')
+%     command = ['netMHCIIpan -f example.fsa -inptype 1 -xls -xlsfile out.dat -a ' HLAtext];
+%     [s,m] = unix(command);
+    IEDBScraper(epitopesequence,nallele,HLAtext);
 end
-table = readtable('out.dat');
-Affinity_DR(1) = table{1,'nM'};
-Affinity_DR(2) = table{1,'nM_1'};
+Affinity_DR = dlmread('IEDB_KD.dat');
+Affinity_DR = Affinity_DR(:)';
