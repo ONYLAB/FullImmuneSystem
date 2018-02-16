@@ -1,7 +1,7 @@
 
 function Main_human(SimType,epitopes,HLA_DR,regimen)
 
-clc
+% clc
 close all
 
 %% Main simulation

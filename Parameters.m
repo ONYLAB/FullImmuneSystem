@@ -236,7 +236,7 @@ AlphaA=8.64E8; % day-1
 BetaA= 0.030130435; % day-1
 
 % BetaC: elimation rate of immune complex
-BetaC=10*kel; % day-1
+BetaC=10*BetaA; % day-1
 
 %% Initial conditions for state variables in the differential equations:
 % AgIS0: initial Ag in the injection site
@@ -252,7 +252,7 @@ Agec0=0; % pmole
 Agp0=0; % pmole
 
 % MS0: Maturation signal (MS), particularly, endotoxin, LPS
-MS0=Endotoxin;%5*70; % ng
+MS0=5*70; % ng ;%Endotoxin;%
 
 % ID0: the initial number of immature dendritc cell
 ID0=5e7; % cells
