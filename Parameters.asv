@@ -44,7 +44,7 @@ Vec= 0.36920; % L
 kaAg=1e4;%0.28; % day-1
 
 %kel: elimation rate of therapeutic protein (protein-specific)
-kel=6.43;%0.11370; % day-1 6.43;%
+kel=6.43;%0.11370; % day-1
 
 % k12: distribution rate constant from the plasma to the extra central compartment
 k21= 0.0;%10000; % day-1
