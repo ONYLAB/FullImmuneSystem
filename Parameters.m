@@ -30,7 +30,7 @@ MW=45.18e3; %Daltons = g/mol
 fitconc = 20.88e3;
 
 % Dose: bioavailabe drug dose (protein-specific)
-Dose = fitconc*Vp; %pmol = pmol/L * L (before=>AMT*1E9/MW*F_Bio;  % pmole)
+Dose = AMT*1E9/MW*F_Bio;%fitconc*Vp; %pmol = pmol/L * L (before=>AMT*1E9/MW*F_Bio;  % pmole)
 
 EndotoxinContentoftheDrug = 0.1; %ng/mg drug
 Endotoxin = EndotoxinContentoftheDrug*AMT; %ng = (ng/mg * mg)
@@ -44,7 +44,7 @@ Vec= 0.36920; % L
 kaAg=1e4;%0.28; % day-1
 
 %kel: elimation rate of therapeutic protein (protein-specific)
-kel=6.43;%0.11370; % day-1
+kel=35.4;%6.43;%0.11370; % day-1
 
 % k12: distribution rate constant from the plasma to the extra central compartment
 k21= 0.0;%10000; % day-1
@@ -119,7 +119,7 @@ konN=0.0;%ones(6,1)*8.64*1E-3; %  pM-1day-1
 koffN=8.64*1E-3*ones(6,1)*4000E3; %  day-1
 
 % AlphaAgE:  Ag internalization rate constant by mature dendritic cells
-AlphaAgE=14.4; %day-1
+AlphaAgE=45;%14.4; %day-1
 
 %	BetaAgE	: degradation rate for AgE in acidic vesicles
 BetaAgE= 17.28; % day-1
@@ -236,7 +236,7 @@ AlphaA=8.64E8; % day-1
 BetaA= 0.030130435; % day-1
 
 % BetaC: elimation rate of immune complex
-BetaC=10*kel; % day-1
+BetaC=BetaA;%10*kel; % day-1
 
 %% Initial conditions for state variables in the differential equations:
 % AgIS0: initial Ag in the injection site

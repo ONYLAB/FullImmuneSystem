@@ -10,6 +10,7 @@ close all
 global solutionx
 
 numdoses = length(regimen)-1;
+numtspan = 100;
 
 % Load the parameters
 Parameters(SimType,epitopes,HLA_DR); %SimType=1 if with Sample, 0 if without
@@ -23,7 +24,7 @@ options = odeset('RelTol',1e-10, 'AbsTol',1e-10);
 yic1 = [AgIS0;Ag0;Agec0;Agp0; MS0; ID0; MD0; cpE0; cptE0;cptME0;cptM0;AgE0;pE0; ME0;pME0; pM0; M0;NT0; AT_N0; AT_M0;MT0; FT0;NB0; AB_N0; AB_M0; SP0; LP0;MB0;A0];
 
 % First dosing interval, protein specific
-tspan1 =linspace(regimen(1),regimen(2),100);
+tspan1 =linspace(regimen(1),regimen(2),numtspan);
 
 % Call ODE
 [T1,Y1]=ode15s(@f, tspan1, yic1, options,pars);
@@ -74,7 +75,7 @@ for num_dose=2:numdoses  % number of doses, protein specific
     % dosing interval
     t_start=regimen(num_dose);
     t_end=regimen(num_dose+1);
-    tspan2 = linspace(t_start, t_end, 100);
+    tspan2 = linspace(t_start, t_end, numtspan);
     
     % Call ODE
     [T2,Y2]=ode15s(@f, tspan2, yic2, options,pars);
