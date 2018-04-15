@@ -13,12 +13,13 @@ NA = 6.0221367e23;
 % F_Bio: bioavailability (protein-specific)
 F_Bio=1;   % no unit
 
-DosePerPatientkg = 83; %ug/kg
+DosePerPatientkg = 80; %ug/kg
 Patientkg = 75;
 
 % Vp: plasma volume
 Vpperkg = 39e-3; %L/kg 
 Vp = Vpperkg*Patientkg;%2.75;% L This is the Volume of the sample
+VolumeofDistribution = 88*Patientkg/1000;%6.61;%3.3587; %L
 
 % AMT: amount of protein dosed (protein-specific)
 AMT=Patientkg*DosePerPatientkg*1e-3;%40; % mg
@@ -30,7 +31,7 @@ MW=45.18e3; %Daltons = g/mol
 fitconc = 20.88e3;
 
 % Dose: bioavailabe drug dose (protein-specific)
-Dose = AMT*1E9/MW*F_Bio;%fitconc*Vp; %pmol = pmol/L * L (before=>AMT*1E9/MW*F_Bio;  % pmole)
+Dose = (Vp/VolumeofDistribution)*AMT*1E9/MW*F_Bio;%fitconc*Vp; %pmol = pmol/L * L (before=>AMT*1E9/MW*F_Bio;  % pmole)
 
 EndotoxinContentoftheDrug = 0.1; %ng/mg drug
 Endotoxin = EndotoxinContentoftheDrug*AMT; %ng = (ng/mg * mg)
@@ -41,10 +42,10 @@ Endotoxin = SimType*Endotoxin/VzEndo*Vpperkg; %Scaling for available amount in p
 Vec= 0.36920; % L
 
 % kaAg: absorption rate constant from injection site to plasma for therapeutic protein (protein-specific)
-kaAg=1e4;%0.28; % day-1
+kaAg=390;%0.28; % day-1 Solve[15/60/24 == (Log[ka] - Log[kel])/(ka - kel), ka]
 
 %kel: elimation rate of therapeutic protein (protein-specific)
-kel=35.4;%6.43;%0.11370; % day-1
+kel=log(2)/(2.9/24);%7.2328;%18.4839;%6.43;%0.11370; % day-1
 
 % k12: distribution rate constant from the plasma to the extra central compartment
 k21= 0.0;%10000; % day-1
@@ -158,7 +159,7 @@ BetaNT=0.0029 ; % day-1
 DeltaNT=1.5; % day-1
 
 % RhoAT: maximum proliferation rate for activated helper T cells
-RhoAT=0.5973; % day-1
+RhoAT=1.5; % day-1
 
 %BetaAT: death rate of activated helper T cells
 BetaAT=0.18; % day-1
@@ -195,7 +196,7 @@ DeltaNB=3.0; % day-1
 K_R=1.0;  % number of BCR
 
 % CC_N: the carrying capacity for 1 FT cell to stimulate the activation and proliferation of target naive B cells.
-CC_N=10; % no unit
+CC_N=50; % no unit
 
 % CC_M: the carrying capacity for 1 FT cell to stimulate the activation and proliferation of target memory B cells.
 CC_M=100; % no unit
@@ -219,7 +220,7 @@ BetaMB=7.8278e-005; % day-1
 g1=0.5; % no unit
 
 % g2:	percentage for activated B cells to differentiate to short-lived plasma cells
-g2=0.4; % no unit
+g2=0.15;%4; % no unit
 
 %	 BetaSP: death rate of  short-lived plasma cells
 BetaSP=0.2310; % day-1
@@ -294,7 +295,7 @@ M0=ones(6,1)*0; % pmole
 % of T-epitope-specific T helper cells (protein-specific)
 % Human: Total naive T helper cells per kg body weight is: 876E6 cells/L*5L(blood
 % volume)= 4.3800e+009 cells
-NT0=ones(N,1)* 4.3800e+009*0.1/1E6; % cells changed for Factor VII
+NT0=ones(N,1)* 4.3800e+009*1/1E6; % cells changed for Factor VII
 
 % AT_N0: initial number of activated T helper cell derived from naive T cells
 AT_N0=ones(N,1)*0.0; % cells
@@ -309,7 +310,7 @@ MT0=ones(N,1)*0.0; % cells
 FT0=ones(N,1)*0.0; % cells
 
 % NB0: initial number of naïve B cells
-NB0=(normpdf(-3:6/16:3)./sum(normpdf(-3:6/16:3))*1.3e9*0.000004)'; % cells
+NB0=(normpdf(-3:6/16:3)./sum(normpdf(-3:6/16:3))*1.3e9*0.005/100)'; % cells
 
 % AB_N0: initial number of activated B cells derived from naive B cells
 AB_N0=ones(J,1)*0.0; % cells
