@@ -17,7 +17,7 @@ Parameters(SimType,epitopes,HLA_DR); %SimType=1 if with Sample, 0 if without
 load Parameters.mat; %#ok<LOAD>
 
 % Run the ODEs
-options = odeset('RelTol',1e-10, 'AbsTol',1e-10);
+options = odeset('RelTol',1e-13, 'AbsTol',1e-13);
 
 % First dose
 % Initial condition vector

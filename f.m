@@ -2,6 +2,7 @@ function dydt=f(t,y,pars)
 
 global  solutionx
 %% Parameter vector
+NB0=0;%(normpdf(-3:6/16:3)./sum(normpdf(-3:6/16:3))*1.3e9*0.005/100)';
 NA=pars(1);
 % Therapeutic protein PK parameters
 F_Bio=pars(2);
@@ -251,7 +252,8 @@ dydt((35+16*N):(34+17*N),1)=RhoAT*(1-E_N)*f1.*AT_N +RhoAT*(1-E_M)*f1.*AT_M...
 dydt((35+17*N):(34+18*N),1)=RhoAT*(1-E_N)*(1-f1).*AT_N +RhoAT*(1-E_M)*(1-f1).*AT_M -BetaFT*FT;
 
 % NB, y((35+18*N):(34+18*N+J)), naïve B cells,   cells
-dydt(((35+18*N):(34+18*N+J)),1)=  -DeltaNB*F*P_N.*NB;
+BetaNB = 0.0046;
+dydt(((35+18*N):(34+18*N+J)),1)=  -DeltaNB*F*P_N.*NB+BetaNB*(NB0-NB);
 
 % AB_N,	y((35+18*N+J):(34+18*N+2*J)), activated B cells derived from naive B cells,  cells
 dydt(((35+18*N+J):(34+18*N+2*J)),1)=DeltaNB*G*P_N.*NB +  RhoAB_N*H*P_N.*AB_N  -BetaAB*AB_N;
