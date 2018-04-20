@@ -220,7 +220,7 @@ BetaMB=7.8278e-005; % day-1
 g1=0.5; % no unit
 
 % g2:	percentage for activated B cells to differentiate to short-lived plasma cells
-g2=0.15;%.4; % no unit
+g2=0.1;%.4; % no unit
 
 %	 BetaSP: death rate of  short-lived plasma cells
 BetaSP=0.2310; % day-1
@@ -412,24 +412,37 @@ function [kon,koff,N,ME0] = doNETMHCIIpan(epitopes,HLA_DR,SimType,NA,numHLADR)
 % molecules
 
 summary = readtable('SUMMARY.xlsx');
-affinities = summary{2,2:end};
+affinities = summary{1,2:end};
 ranks = summary{2,2:end};
 alleles = summary.Properties.VariableNames;
+[~,ind]=sort(affinities);
 
-repeatQ = ones(1,6); %this multiplties #MHC info through rank info
-
-for i =2:length(alleles) %Find the repeat alleles
-    alletxt = alleles{i};
-    if strcmp(alletxt(end-1:end),'_1')
-       repeatQ(1,i-1) = 0;
-       repeatQ(1,i-2) = 2; 
-    end
+limit = 6;
+if length(ind)<limit
+    limit = length(ind);
 end
 
+affinities = affinities(ind(1:limit));
+ranks = ranks(ind(1:limit));
+alleles = alleles(ind(1:limit)+1);
+
+DRs = strncmp(alleles,'DR',2);
+DPs = strncmp(alleles,'HLA_DP',6);
+DQs = strncmp(alleles,'HLA_DQ',6);
+
+% repeatQ = ones(1,6); %this multiplties #MHC info through rank info
+% 
+% for i =2:length(alleles) %Find the repeat alleles
+%     alletxt = alleles{i};
+%     if strcmp(alletxt(end-1:end),'_1')
+%        repeatQ(1,i-1) = 0;
+%        repeatQ(1,i-2) = 2; 
+%     end
+% end
+
 %calculate available MHCII molecules
-halflife = 2; %beyond 2% you only have 50% of the MHCII available for you
-rankmultip = exp(-ranks*log(2)/halflife);
-rankmultip = rankmultip.*repeatQ;
+halflife = 0.1; %beyond this% you only have 50% of the MHCII available for you
+rankmultip = ranks<=2; %exp(-ranks*log(2)/halflife);
 
 EpitopePresent = 1;
 N = length(epitopes);
@@ -439,6 +452,27 @@ if N<1
     N=1;
 end
 
+numHLADP = 34E3;
+numHLADQ = 17.1E3;
+
+numME0 = zeros(1,limit);
+if sum(DRs)>0
+    numME0 = numME0 + DRs*numHLADR/sum(DRs);
+end
+if sum(DPs)>0
+    numME0 = numME0 + DPs*numHLADP/sum(DPs);
+end
+if sum(DQs)>0
+    numME0 = numME0 + DQs*numHLADQ/sum(DQs);
+end
+% [numHLADR/2; numHLADR/2;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2];
+
+if limit<6
+    numME0(limit+1:6) = zeros(1,length(limit+1:6));
+    rankmultip(limit+1:6) = zeros(1,length(limit+1:6));
+    affinities(limit+1:6) = ones(1,length(limit+1:6)); %placeholder
+end
+
 % if strcmp(HLA_DR{1,1},HLA_DR{1,2}) %homozygot
 %     disp('Homozygote');
 %     ME0=[numHLADR; 0.0;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2]/NA*1E12; % pmole
@@ -446,7 +480,7 @@ end
 %     kon=EpitopePresent*SimType*repmat([1 0 0 0 0 0],N,1)*8.64*1E-3; %  pM-1day-1
 %     HLAtext = [HLA_DR{1,1} ',' HLA_DR{1,2}];
 % else
-    ME0=rankmultip'.*[numHLADR/2; numHLADR/2;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2]/NA*1E12; % pmole
+    ME0=rankmultip'.*numME0'/NA*1E12; % pmole
     % kon: on rate for for T-epitope-MHC-II binding
     kon=EpitopePresent*SimType*repmat([1 1 1 1 1 1],N,1)*8.64*1E-3; %  pM-1day-1
     HLAtext = [HLA_DR{1,1} ',' HLA_DR{1,2}];
