@@ -415,7 +415,8 @@ summary = readtable('SUMMARY.xlsx');
 affinities = summary{1,2:end};
 ranks = summary{2,2:end};
 alleles = summary.Properties.VariableNames;
-[~,ind]=sort(affinities);
+% [~,ind]=sort(affinities);
+ind = 1:length(affinities);
 
 limit = 6;
 if length(ind)<limit
@@ -426,7 +427,7 @@ affinities = affinities(ind(1:limit));
 ranks = ranks(ind(1:limit));
 alleles = alleles(ind(1:limit)+1);
 
-DRs = strncmp(alleles,'DR',2);
+DRs = strncmp(alleles,'DRB1',4);
 DPs = strncmp(alleles,'HLA_DP',6);
 DQs = strncmp(alleles,'HLA_DQ',6);
 
@@ -460,10 +461,10 @@ if sum(DRs)>0
     numME0 = numME0 + DRs*numHLADR/sum(DRs);
 end
 if sum(DPs)>0
-    numME0 = numME0 + DPs*numHLADP/sum(DPs);
+    numME0 = numME0 + 0*DPs*numHLADP/sum(DPs);
 end
 if sum(DQs)>0
-    numME0 = numME0 + DQs*numHLADQ/sum(DQs);
+    numME0 = numME0 + 0*DQs*numHLADQ/sum(DQs);
 end
 % [numHLADR/2; numHLADR/2;  34E3/2; 34E3/2; 17.1E3/2; 17.1E3/2];
 
